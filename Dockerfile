@@ -1,28 +1,40 @@
-FROM concourse/concourse-ci  
-#https://github.com/concourse/concourse/blob/master/ci/dockerfiles/concourse-ci/Dockerfile
+FROM ruby:2.2.4
+MAINTAINER Michael Wallasch <development@po2mc.de>
+ENV REFRESHED_AT 2015-08-07
 
-RUN apt-get update && apt-get install curl wget bzr -y
+RUN apt-get update -qq && apt-get install -y build-essential
 
-ADD http://stedolan.github.io/jq/download/linux64/jq /usr/bin/  
-RUN chmod 775 /usr/bin/jq
+# for postgres
+RUN apt-get install -y libpq-dev
 
-# Install Go
-# mkdir -p /goroot will create goroot dir under the root in the docker
-# curl url will output to stand out, with | to direct it to tar, which will extract the pre-compiled 
-# golang to /goroot
+# for nokogiri
+RUN apt-get install -y libxml2-dev libxslt1-dev
 
-RUN \  
-  mkdir -p /goroot /gopath && \
-  curl https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz | \
-  tar xvzf - -C /goroot --strip-components=1
+# for capybara-webkit
+RUN apt-get install -y libqt4-webkit libqt4-dev xvfb
 
-# Set environment variables.
-ENV GOROOT /goroot  
-ENV GOPATH /gopath  
-ENV PATH $GOROOT/bin:$GOPATH/bin:$PATH
+# for node
+RUN apt-get install -y python python-dev python-pip python-virtualenv
 
-RUN go get golang.org/x/tools/cmd/vet  
-RUN go get golang.org/x/tools/cmd/cover  
-RUN go get github.com/golang/lint/golint  
-RUN go get github.com/tools/godep  
-RUN go get github.com/laher/goxc
+# cleanup
+RUN rm -rf /var/lib/apt/lists/*
+
+# install nodejs
+RUN \
+  cd /tmp && \
+  wget http://nodejs.org/dist/node-latest.tar.gz && \
+  tar xvzf node-latest.tar.gz && \
+  rm -f node-latest.tar.gz && \
+  cd node-v* && \
+  ./configure && \
+  CXX="g++ -Wno-unused-local-typedefs" make && \
+  CXX="g++ -Wno-unused-local-typedefs" make install && \
+  cd /tmp && \
+  rm -rf /tmp/node-v* && \
+  npm install -g npm && \
+  echo '\n# Node.js\nexport PATH="node_modules/.bin:$PATH"' >> /root/.bashrc
+
+WORKDIR /app
+ONBUILD ADD . /app
+
+CMD ["bash"]

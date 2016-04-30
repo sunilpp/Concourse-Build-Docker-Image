@@ -14,7 +14,7 @@ resources:
 - name: git-concourse-build-docker-image
   type: git
   source:
-    uri: git repo uri
+    uri: git@github.com:sunilpp/Concourse-Build-Docker-Image.git
     branch: master
     private_key: {{github-private-key}}
 

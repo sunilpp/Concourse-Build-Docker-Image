@@ -1,5 +1,5 @@
 # Pull base image.
-FROM dockerfile/ubuntu
+FROM dockerfile/ruby
 
 # Install Ruby.
 RUN \

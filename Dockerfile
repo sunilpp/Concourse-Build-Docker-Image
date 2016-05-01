@@ -1,15 +1,14 @@
-FROM        ruby:2.1.4
+# Pull base image.
+FROM dockerfile/ubuntu
 
-MAINTAINER  Rimian Perkins
+# Install Ruby.
+RUN \
+  apt-get update && \
+  apt-get install -y ruby ruby-dev ruby-bundler && \
+  rm -rf /var/lib/apt/lists/*
 
-RUN         cd \
-        &&  git clone https://github.com/nodejs/node.git \
-        &&  cd node \
-        &&  git checkout v0.10.33 \
-        &&  ./configure \
-        &&  make \
-        &&  make install \
-        &&  cd .. \
-        &&  rm -rfv ~/node
+# Define working directory.
+WORKDIR /data
 
-RUN         npm install -g bower
+# Define default command.
+CMD ["bash"]

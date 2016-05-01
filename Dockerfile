@@ -1,14 +1,15 @@
-# Pull base image.
-FROM dockerfile/ruby
+FROM      ruby:2.1.4
 
-# Install Ruby.
-RUN \
-  apt-get update && \
-  apt-get install -y ruby ruby-dev ruby-bundler && \
-  rm -rf /var/lib/apt/lists/*
+MAINTAINER  Rimian Perkins
 
-# Define working directory.
-WORKDIR /data
+RUN         cd \
+        &&  git clone https://github.com/joyent/node.git \
+        &&  cd node \
+        &&  git checkout v0.10.33 \
+        &&  ./configure \
+        &&  make \
+        &&  make install \
+        &&  cd .. \
+        &&  rm -rfv ~/node
 
-# Define default command.
-CMD ["bash"]
+RUN         npm install -g bower
